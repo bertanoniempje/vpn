@@ -1,5 +1,3 @@
----
-
 - hosts: all
   become: true
   pre-tasks:
