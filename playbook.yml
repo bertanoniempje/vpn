@@ -1,0 +1,20 @@
+---
+
+- hosts: all
+  become: true
+  pre-tasks:
+
+  - name: update repo cache
+    apt:
+      update_cache: yes
+    changed_when: false
+
+  - name: change ipv4 to static
+      community.general.nmcli:
+        conn_name: Wired connection 1
+        ifname: end0
+        type: ethernet
+        ip4: 192.168.1.222/24
+        gw4: 192.168.1.1
+        state: present
+        autoconnect: true
