@@ -12,7 +12,7 @@
       conn_name: Wired connection 1
       ifname: end0
       type: ethernet
-      ip4: 192.168.1.222/24
+      ip4: 192.168.1.111/24
       gw4: 192.168.1.1
       state: present
       autoconnect: true
