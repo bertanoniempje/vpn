@@ -1,4 +1,5 @@
-- name: update repo cache
+---
+  - name: update repo cache
     apt:
       update_cache: yes
     changed_when: false
