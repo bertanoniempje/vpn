@@ -6,5 +6,8 @@ sudo apt update && sudo apt upgrade -y
 #install ansible
 sudo apt install ansible -y
 
+#clone ansible playbook
+git clone https://github.com/bertanoniempje/vpn.git $HOME/vpn
+
 #run playbook
 cd $HOME/vpn && ansible-playbook --ask-vault-pass playbook.yml
