@@ -11,4 +11,4 @@ sudo apt install git -y
 git clone https://github.com/bertanoniempje/vpn.git $HOME/vpn
 
 #run playbook
-cd $HOME/vpn && ansible-playbook --ask-vault-pass playbook.yml
+cd $HOME/vpn && ansible-playbook playbook.yml
