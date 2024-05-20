@@ -1,4 +1,4 @@
-- hosts: all
+\- hosts: all
   become: true
   pre_tasks:
 
@@ -7,12 +7,40 @@
       update_cache: yes
     changed_when: false
 
-  - name: change ipv4 to static
-    community.general.nmcli:
-      conn_name: Wired connection 1
-      ifname: end0
-      type: ethernet
-      ip4: 192.168.1.111/24
-      gw4: 192.168.1.1
+#  - name: change ipv4 to static
+#    community.general.nmcli:
+#      conn_name: Wired connection 1
+#      ifname: end0
+#      type: ethernet
+#      ip4: 192.168.1.111/24
+#      gw4: 192.168.1.1
+#      state: present
+#      autoconnect: true
+
+  - name: install wireguard
+  apt:
+    name: wireguard
+    state: present
+    update_cache: yes
+
+  - name: create server wireguard config
+    template:
+      dest: /etc/wireguard/wg0.conf
+      src: server_wg0.conf.j2
+      owner: root
+      group: root
+      mode: '0600'
+
+  - name: enable and persist ip forwarding
+    sysctl:
+      name: net.ipv4.ip_forward
+      value: "1"
       state: present
-      autoconnect: true
+      sysctl_set: yes
+      reload: yes
+
+  - name: start wireguard and enable on boot
+    systemd:
+      name: wg-quick@wg0
+      enabled: yes
+      state: started
