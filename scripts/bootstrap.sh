@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Run the script to get the IP addresses
-cd $HOME/vpn/scripts && ./get_ips.sh
-
 # Update & upgrade
 sudo apt update -y
 
@@ -12,6 +9,9 @@ sudo apt install git -y
 
 # Clone the Ansible playbook
 git clone https://github.com/bertanoniempje/vpn.git $HOME/vpn
+
+# Run the script to get the IP addresses
+cd $HOME/vpn/scripts && ./get_ips.sh
 
 # Navigate to the vpn directory
 cd $HOME/vpn
