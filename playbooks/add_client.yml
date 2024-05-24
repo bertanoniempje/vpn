@@ -24,6 +24,11 @@
       changed_when: false
       check_mode: no
 
+    - name: Check if client public key exists in client keys file
+      stat:
+        path: /etc/wireguard/client_keys
+      register: client_keys_file
+
     - name: Add client to server configuration
       lineinfile:
         path: /etc/wireguard/{{ wg_interface }}.conf
@@ -34,7 +39,9 @@
       loop: "{{ range(2, 255) }}"
       loop_control:
         loop_var: item
-      when: "not ansible_check_mode and not ansible_filesystem.readable('/etc/wireguard/client_keys') or not lookup('file', '/etc/wireguard/client_keys').splitlines() | select('search', client_public_key.stdout) | list"
+      when: 
+        - client_keys_file.stat.exists == False
+        - "not lookup('file', '/etc/wireguard/client_keys').splitlines() | select('search', client_public_key.stdout) | list"
 
     - name: Restart WireGuard
       systemd:
