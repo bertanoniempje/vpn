@@ -34,7 +34,7 @@
       loop: "{{ range(2, 255) }}"
       loop_control:
         loop_var: item
-      when: "not lookup('file', '/etc/wireguard/client_keys').splitlines() | select('search', client_public_key.stdout) | list"
+      when: "not ansible_check_mode and not ansible_filesystem.readable('/etc/wireguard/client_keys') or not lookup('file', '/etc/wireguard/client_keys').splitlines() | select('search', client_public_key.stdout) | list"
 
     - name: Restart WireGuard
       systemd:
