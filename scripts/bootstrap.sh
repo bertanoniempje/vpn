@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run the script to get the IP addresses
-source scripts/get_ips.sh
+cd $HOME/vpn/scripts && ./get_ips.sh
 
 # Update & upgrade
 sudo apt update -y
