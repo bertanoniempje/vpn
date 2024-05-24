@@ -5,8 +5,10 @@ RPI_IP=$(hostname -I | awk '{print $1}')
 RPI_USER=$(whoami)
 
 # Get the client IP address from the SSH connection
-CLIENT_IP=$(echo $SSH_CLIENT | awk '{print $1}')
-CLIENT_USER=$(who am i | awk '{print $1}')
+CLIENT_IP=$(echo $SSH_CONNECTION | awk '{print $1}')
+
+# Get the client username
+CLIENT_USER=$(echo $SSH_CONNECTION | awk '{print $4}')
 
 # Export variables for use in the calling script
 export RPI_IP
