@@ -31,7 +31,7 @@
 
     - name: Render client configuration template
       template:
-        src: playbooks/templates/client_template.conf.j2  # Corrected path to the template file
+        remote_src: playbooks/templates/client_template.conf.j2  # Corrected path to the template file
         dest: "/etc/wireguard/clients/client_{{ item }}.conf"
       vars:
         client_private_key: "{{ client_private_key.stdout }}"
