@@ -1,0 +1,11 @@
+---
+
+- name: Update Debian-based Systems
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Install sshpass
+  apt:
+    name: sshpass
+    state: present
