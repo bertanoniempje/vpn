@@ -1,23 +1,32 @@
 #!/bin/bash
 
-#update & upgrade
+# Run the script to get the IP addresses
+source scripts/get_ips.sh
+
+# Update & upgrade
 sudo apt update -y
 
-#install ansible and git
+# Install Ansible and Git
 sudo apt install ansible -y
 sudo apt install git -y
 
-#clone ansible playbook
+# Clone the Ansible playbook
 git clone https://github.com/bertanoniempje/vpn.git $HOME/vpn
 
-#run pre_tasks playbook
-cd $HOME/vpn && ansible-playbook ansible-playbook -i inventories/pi/hosts playbooks/pre_tasks.yml
+# Navigate to the vpn directory
+cd $HOME/vpn
 
-#run playbook to install wireguard on vpn server
-ansible-playbook ansible-playbook -i inventories/pi/hosts playbooks/install_wireguard.yml
+# Export environment variables for Ansible
+export RPI_IP=$RPI_IP
+export RPI_USER=$RPI_USER
+export CLIENT_IP=$CLIENT_IP
+export CLIENT_USER=$CLIENT_USER
 
-#run playbook to add new client to the vpn server
-ansible-playbook -i inventories/pi/hosts playbooks/add_client.yml
+# Run pre_tasks playbook
+ansible-playbook -i scripts/dynamic_inventory.py playbooks/pre_tasks.yml
 
-#run playbook to add Windows client
-./setup_client.sh
+# Run playbook to install WireGuard on VPN server
+ansible-playbook -i scripts/dynamic_inventory.py playbooks/install_wireguard.yml
+
+# Run playbook to add new client to the VPN server
+ansible-playbook -i scripts/dynamic_inventory.py playbooks/add_client.yml -e "client_name=new_client"

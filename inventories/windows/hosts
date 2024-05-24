@@ -1,2 +1,0 @@
-[windows_clients]
-windows_client ansible_host=<WINDOWS_CLIENT_IP> ansible_user=<USER> ansible_password=<PASSWORD> ansible_connection=winrm ansible_winrm_server_cert_validation=ignore

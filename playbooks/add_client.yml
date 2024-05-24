@@ -1,50 +1,35 @@
 ---
-- hosts: localhost
-  gather_facts: yes  # Enable gathering facts about the server
+- name: Add new client to WireGuard server
+  hosts: raspberry_pi
   become: yes
   tasks:
-    - name: Create client keys file if not exists
-      file:
-        path: /etc/wireguard/client_keys
-        state: touch
-
-    - name: Set permissions for client keys file
-      file:
-        path: /etc/wireguard/client_keys
-        mode: '0644'
-
-    - name: Generate client private key
-      command: wg genkey
-      register: client_private_key
-      changed_when: false
-      check_mode: no
-
-    - name: Generate client public key
-      command: "echo {{ client_private_key.stdout }} | wg pubkey"
-      register: client_public_key
-      changed_when: false
-      check_mode: no
-
-    - name: Get server IP address
-      set_fact:
-        server_ip: "{{ ansible_default_ipv4.address }}"  # Extract the server's default IPv4 address
-
-    - name: Render client configuration template
+    - name: Generate client keys
+      command: wg genkey | tee /etc/wireguard/client_privatekey | wg pubkey > /etc/wireguard/client_publickey
+      args:
+        creates: /etc/wireguard/client_privatekey
+    - name: Configure WireGuard client
       template:
-        remote_src: playbooks/templates/client_template.conf.j2  # Corrected path to the template file
-        dest: "/etc/wireguard/clients/client_{{ item }}.conf"
-      vars:
-        client_private_key: "{{ client_private_key.stdout }}"
-        client_index: "{{ item }}"
-        server_public_key: "{{ server_public_key.stdout }}"
-        wg_port: "{{ wg_port }}"
-        wg_allowed_ips: "{{ wg_allowed_ips }}"
-        server_ip: "{{ server_ip }}"
-      loop: "{{ range(2, 255) }}"
-      loop_control:
-        loop_var: item
-
+        src: templates/client.conf.j2
+        dest: /etc/wireguard/clients/{{ client_name }}.conf
+    - name: Add client to WireGuard server configuration
+      command: wg set wg0 peer {{ lookup('file', '/etc/wireguard/client_publickey') }} allowed-ips {{ hostvars['client']['ansible_host'] }}/32
     - name: Restart WireGuard
       systemd:
-        name: wg-quick@{{ wg_interface }}
+        name: wg-quick@wg0
         state: restarted
+    - name: Fetch client configuration file to local machine
+      fetch:
+        src: /etc/wireguard/clients/{{ client_name }}.conf
+        dest: ./{{ client_name }}.conf
+        flat: yes
+
+- name: Install WireGuard on client
+  hosts: client
+  tasks:
+    - name: Install WireGuard
+      script: scripts/client_install_wireguard.sh
+    - name: Transfer client configuration to client machine
+      copy:
+        src: ./{{ client_name }}.conf
+        dest: /home/{{ ansible_user }}/{{ client_name }}.conf
+        mode: '0600'

@@ -1,0 +1,10 @@
+[Interface]
+PrivateKey = {{ lookup('file', '/etc/wireguard/privatekey') }}
+Address = 10.0.0.1/24
+ListenPort = 51820
+
+{% for client in groups['client']['hosts'] %}
+[Peer]
+PublicKey = {{ hostvars[client]['client_publickey'] }}
+AllowedIPs = {{ hostvars[client]['ansible_host'] }}/32
+{% endfor %}

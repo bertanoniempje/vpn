@@ -1,5 +1,22 @@
 ---
-- hosts: localhost
+- name: Install WireGuard on VPN server
+  hosts: raspberry_pi
   become: yes
-  roles:
-    - wireguard
+  tasks:
+    - name: Install WireGuard
+      apt:
+        name: wireguard
+        state: present
+    - name: Generate WireGuard server keys
+      command: wg genkey | tee /etc/wireguard/privatekey | wg pubkey > /etc/wireguard/publickey
+      args:
+        creates: /etc/wireguard/privatekey
+    - name: Configure WireGuard server
+      template:
+        src: templates/wg0.conf.j2
+        dest: /etc/wireguard/wg0.conf
+    - name: Enable and start WireGuard
+      systemd:
+        name: wg-quick@wg0
+        enabled: yes
+        state: started

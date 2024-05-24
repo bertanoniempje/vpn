@@ -1,5 +1,0 @@
----
-
-wireguard_listen_port: 1194
-wireguard_interface: wg0
-wireguard_group: wireguard

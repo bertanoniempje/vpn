@@ -45,7 +45,7 @@ cp "$inventory_file" "$inventory_file.bak"
 # Update the inventory file with the client details
 cat <<EOL > "$inventory_file"
 [$client_os_clients]
-$client_os_client ansible_host=$client_ip ansible_user=$(openssl enc -d -aes-256-cbc -a <<<"$encrypted_user") ansible_password=$(openssl enc -d -aes-256-cbc -a <<<"$encrypted_password") ansible_connection=${client_os}_connection ansible_become=true ansible_become_method=sudo
+$client_os_client ansible_host=$client_ip ansible_user=$(openssl enc -d -aes-256-cbc -a <<<"$encrypted_user") ansible_password=$(openssl enc -d -aes-256-cbc -a <<<"$encrypted_password")
 EOL
 
 # Confirm the update

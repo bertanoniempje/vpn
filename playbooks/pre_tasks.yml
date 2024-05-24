@@ -1,5 +1,9 @@
 ---
-- hosts: localhost
+- name: Pre-tasks for setting up VPN server
+  hosts: raspberry_pi
   become: yes
-  roles:
-    - pre_tasks
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist

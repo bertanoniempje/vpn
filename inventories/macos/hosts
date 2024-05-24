@@ -1,2 +1,0 @@
-[macos_clients]
-macos_client ansible_host=<MACOS_CLIENT_IP> ansible_user=<USER> ansible_ssh_pass=<PASSWORD> ansible_connection=ssh ansible_become=true ansible_become_method=sudo
