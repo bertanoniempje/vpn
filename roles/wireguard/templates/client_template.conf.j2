@@ -1,0 +1,8 @@
+[Interface]
+PrivateKey = {{ client_private_key }}
+Address = 10.0.0.{{ client_index }}/32
+
+[Peer]
+PublicKey = {{ server_public_key }}
+Endpoint = {{ server_ip }}:{{ wg_port }}
+AllowedIPs = {{ wg_allowed_ips }}

@@ -1,5 +1,6 @@
 ---
 - hosts: localhost
+  gather_facts: yes  # Enable gathering facts about the server
   become: yes
   tasks:
     - name: Create client keys file if not exists
@@ -24,40 +25,26 @@
       changed_when: false
       check_mode: no
 
-    - name: Check if client public key exists in client keys file
-      stat:
-        path: /etc/wireguard/client_keys
-      register: client_keys_file
+    - name: Get server IP address
+      set_fact:
+        server_ip: "{{ ansible_default_ipv4.address }}"  # Extract the server's default IPv4 address
 
-    - name: Add client to server configuration
-      lineinfile:
-        path: /etc/wireguard/{{ wg_interface }}.conf
-        line: |
-          [Peer]
-          PublicKey = {{ client_public_key.stdout }}
-          AllowedIPs = 10.0.0.{{ item }}/32
+    - name: Render client configuration template
+      template:
+        src: templates/client_template.conf.j2
+        dest: "/etc/wireguard/clients/client_{{ item }}.conf"
+      vars:
+        client_private_key: "{{ client_private_key.stdout }}"
+        client_index: "{{ item }}"
+        server_public_key: "{{ server_public_key.stdout }}"
+        wg_port: "{{ wg_port }}"
+        wg_allowed_ips: "{{ wg_allowed_ips }}"
+        server_ip: "{{ server_ip }}"
       loop: "{{ range(2, 255) }}"
       loop_control:
         loop_var: item
-      when: 
-        - client_keys_file.stat.exists == False
-        - "not lookup('file', '/etc/wireguard/client_keys').splitlines() | select('search', client_public_key.stdout) | list"
 
     - name: Restart WireGuard
       systemd:
         name: wg-quick@{{ wg_interface }}
         state: restarted
-
-    - name: Save client private key and configuration
-      copy:
-        content: |
-          [Interface]
-          PrivateKey = {{ client_private_key.stdout }}
-          Address = 10.0.0.{{ item }}/32
-
-          [Peer]
-          PublicKey = {{ server_public_key.stdout }}
-          Endpoint = <SERVER_IP>:{{ wg_port }}
-          AllowedIPs = {{ wg_allowed_ips }}
-        dest: "/etc/wireguard/clients/client_{{ item }}.conf"
-        mode: '0600'
