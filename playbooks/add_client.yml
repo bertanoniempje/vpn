@@ -1,5 +1,5 @@
 ---
-- hosts: pi
+- hosts: localhost
   become: yes
   tasks:
     - name: Generate client private key
