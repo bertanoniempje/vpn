@@ -2,6 +2,11 @@
 - hosts: localhost
   become: yes
   tasks:
+    - name: Create client keys file if not exists
+      file:
+        path: /etc/wireguard/client_keys
+        state: touch
+
     - name: Generate client private key
       command: wg genkey
       register: client_private_key
@@ -44,3 +49,4 @@
           AllowedIPs = {{ wg_allowed_ips }}
         dest: "/etc/wireguard/clients/client_{{ item }}.conf"
         mode: '0600'
+
