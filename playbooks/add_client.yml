@@ -7,6 +7,11 @@
         path: /etc/wireguard/client_keys
         state: touch
 
+    - name: Set permissions for client keys file
+      file:
+        path: /etc/wireguard/client_keys
+        mode: '0644'
+
     - name: Generate client private key
       command: wg genkey
       register: client_private_key
@@ -49,4 +54,3 @@
           AllowedIPs = {{ wg_allowed_ips }}
         dest: "/etc/wireguard/clients/client_{{ item }}.conf"
         mode: '0600'
-
