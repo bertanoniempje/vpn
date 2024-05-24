@@ -3,40 +3,27 @@
 import os
 import json
 
-# Get the client IP address from the environment variable
+# Get environment variables
+rpi_ip = os.getenv('RPI_IP')
+rpi_user = os.getenv('RPI_USER')
 client_ip = os.getenv('CLIENT_IP')
+client_user = os.getenv('CLIENT_USER')
 
-# Define the inventory dictionary
+# Construct inventory dictionary
 inventory = {
-    'all': {
-        'hosts': [],
-        'children': {
-            'raspberry_pi': {
-                'hosts': [],
-                'vars': {
-                    'ansible_user': os.getenv('RPI_USER')
-                }
-            },
-            'client': {
-                'hosts': [],
-                'vars': {
-                    'ansible_user': os.getenv('CLIENT_USER')
-                }
-            }
+    'raspberry_pi': {
+        'hosts': [rpi_ip],
+        'vars': {
+            'ansible_user': rpi_user
+        }
+    },
+    'client': {
+        'hosts': [client_ip],
+        'vars': {
+            'ansible_user': client_user
         }
     }
 }
-
-# Add Raspberry Pi to inventory
-rpi_ip = os.getenv('RPI_IP')
-if rpi_ip:
-    inventory['all']['hosts'].append(rpi_ip)
-    inventory['all']['children']['raspberry_pi']['hosts'].append(rpi_ip)
-
-# Add client machine to inventory
-if client_ip:
-    inventory['all']['hosts'].append(client_ip)
-    inventory['all']['children']['client']['hosts'].append(client_ip)
 
 # Print the inventory as JSON
 print(json.dumps(inventory))
