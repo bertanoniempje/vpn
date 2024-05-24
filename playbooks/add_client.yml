@@ -1,0 +1,46 @@
+---
+- hosts: pi
+  become: yes
+  tasks:
+    - name: Generate client private key
+      command: wg genkey
+      register: client_private_key
+      changed_when: false
+      check_mode: no
+
+    - name: Generate client public key
+      command: "echo {{ client_private_key.stdout }} | wg pubkey"
+      register: client_public_key
+      changed_when: false
+      check_mode: no
+
+    - name: Add client to server configuration
+      lineinfile:
+        path: /etc/wireguard/{{ wg_interface }}.conf
+        line: |
+          [Peer]
+          PublicKey = {{ client_public_key.stdout }}
+          AllowedIPs = 10.0.0.{{ item }}/32
+      loop: "{{ range(2, 255) }}"
+      loop_control:
+        loop_var: item
+      when: "not lookup('file', '/etc/wireguard/client_keys').splitlines() | select('search', client_public_key.stdout) | list"
+
+    - name: Restart WireGuard
+      systemd:
+        name: wg-quick@{{ wg_interface }}
+        state: restarted
+
+    - name: Save client private key and configuration
+      copy:
+        content: |
+          [Interface]
+          PrivateKey = {{ client_private_key.stdout }}
+          Address = 10.0.0.{{ item }}/32
+
+          [Peer]
+          PublicKey = {{ server_public_key.stdout }}
+          Endpoint = <SERVER_IP>:{{ wg_port }}
+          AllowedIPs = {{ wg_allowed_ips }}
+        dest: "/etc/wireguard/clients/client_{{ item }}.conf"
+        mode: '0600'

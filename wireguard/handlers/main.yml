@@ -1,7 +1,0 @@
----
-
-- name: wg0_restart
-  systemd:
-    name: "wg-quick@wg0"
-    enabled: yes
-    state: restarted

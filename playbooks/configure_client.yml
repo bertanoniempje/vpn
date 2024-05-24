@@ -1,0 +1,21 @@
+---
+- hosts: clients
+  tasks:
+    - name: Install WireGuard
+      apt:
+        name: wireguard
+        state: present
+        update_cache: yes
+
+    - name: Configure WireGuard client
+      template:
+        src: wg-client.conf.j2
+        dest: /etc/wireguard/wg0.conf
+        mode: '0600'
+
+    - name: Enable and start WireGuard
+      systemd:
+        name: wg-quick@wg0
+        enabled: yes
+        state: started
+

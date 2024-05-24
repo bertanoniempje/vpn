@@ -1,0 +1,20 @@
+---
+- hosts: windows_clients
+  tasks:
+    - name: Download WireGuard installer
+      win_get_url:
+        url: https://download.wireguard.com/windows-client/wireguard-installer.exe
+        dest: C:\Windows\Temp\wireguard-installer.exe
+
+    - name: Install WireGuard
+      win_shell: |
+        Start-Process -FilePath "C:\Windows\Temp\wireguard-installer.exe" -ArgumentList "/S" -Wait
+
+    - name: Copy WireGuard configuration
+      win_copy:
+        src: /etc/wireguard/clients/client_{{ client_ip }}.conf
+        dest: C:\Program Files\WireGuard\Configurations\wg0.conf
+
+    - name: Start WireGuard
+      win_shell: |
+        Start-Process -FilePath "C:\Program Files\WireGuard\wireguard.exe" -ArgumentList "/installtunnelservice wg0.conf" -Wait
