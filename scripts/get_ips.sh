@@ -4,6 +4,9 @@
 RPI_IP=$(hostname -I | awk '{print $1}')
 RPI_USER=$(whoami)
 
+# Parse SSH_CONNECTION to extract client IP and user
+read -r client_ip client_port server_ip server_port <<<"$SSH_CONNECTION"
+
 # Get the client IP address from the SSH connection
 CLIENT_IP=$(echo $SSH_CONNECTION | awk '{print $1}')
 
